@@ -1,7 +1,7 @@
 # Thermal-Data-Analysis
 | Title | Function |
 | ------------- | ------------- |
-| writeDataELC | Reads in the name and contents of the v8 ELC files. Calls getNamesELC to parce out the filename. Places parced out filename and stacked contents into a text file. Combines the text files of all excel files in the v8 ELC folder  |
+| writeDataELC | Reads in the name and contents of the v8 ELC files. Calls getNamesELC to parce out the filename. Places parced out filename and stacked contents into a text file. Combines the text files of all excel files in the v8 ELC folder. Can be called on its own or within compileAll.m  |
 | writeDataSf | Same as writeDataELC by with the Solo Flight files. |
 | writeDataTrans | Same as writeDataELC but with the v8 Transfer files. |
 | getNamesELC | Parces out the filename for the v8 ELC files. Returns the original filename, version, location, attitude, YPR, beta, life, temperature extreme, and case |
