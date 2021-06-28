@@ -3,7 +3,7 @@ function [name, version, location, attitude, YPR, beta, life, tempExtreme, Case]
 % create name vectors the same length as M
 
 name = namecell{1}; %again can iterate this later on
-version = 'v8';
+version = 'v5-1';
 location = 'Transfer';
 attitude = name(9:11);
 findY = strfind(name, 'Y');

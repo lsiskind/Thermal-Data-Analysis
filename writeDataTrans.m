@@ -15,24 +15,56 @@ dataStore = cell(1,length(files)); % where we store the text files
 updateStr = ''; %For progress update text
 for i=1:length(files)
     
-    tic
     
     filename = files(i);
     namecell{i} = filename.name;
 
 
     % pivot data - change this to iterate through the files later on
-    data = readtable([filedir namecell{1}],'VariableNamingRule','Preserve');
+    data = readtable([filedir namecell{i}],'VariableNamingRule','Preserve');
     M = pivotData(data);
 
-    Timestamp = M.Times; % double
+    Timestamp = M.Times; % double, units of hours
     nodeID = string(M.NodeID); %string
     nodeValue = M.NodeValue; % double
+    
+    % convert timestamp units
+    Timestamp = Timestamp.*60.*60; % seconds
+    
+    [nodeName] = crossref(nodeID);
+
+    % shorten all vectors to only the first four nodes of each component
+    isempty = "";
+    index = find(nodeName == isempty);
+    nodeName(index) = [];
+    Timestamp(index) = [];
+    nodeID(index) = [];
+    nodeValue(index) = [];
+
+    % shorten to just four nodes per component
+    uniquecomps = unique(nodeName, 'stable');
+
+    for j = 1:length(uniquecomps)
+
+        nodeNames0 = nodeName(Timestamp == Timestamp(1));
+        wherecomps = nodeNames0 == uniquecomps(j);
+
+        if sum(wherecomps) > 4
+            allnodes = nodeID(wherecomps);
+            extranodes = allnodes(5:end);                
+            where2delete = ismember(nodeID, extranodes);
+            deleteIndices = find(where2delete);              
+            nodeName(deleteIndices) = [];
+            Timestamp(deleteIndices) = [];
+            nodeID(deleteIndices) = [];
+            nodeValue(deleteIndices) = [];
+        end    
+    end
 
     % [nodeName, opMin, opMax, nonopMin, nonopMax] = crossref(nodeID); % cell vectors
-    [name, version, location, attitude, YPR, beta, life, tempExtreme, Case] = getNamesTrans(namecell);
+    [name, version, location, attitude, YPR, beta, life, tempExtreme, Case] = getNamesTrans(namecell(i));
 
-    [rows, ~] = size(M);
+    [rows, ~] = size(nodeName);
     fileInfo = strings(rows,9);
     fileInfo(:,1) = name;
     fileInfo(:,2) = version;
@@ -55,7 +87,7 @@ for i=1:length(files)
     Temperature_Extreme = fileInfo(:,8);
     Case = fileInfo(:,9);
 
-    T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeValue);
+    T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue);
     writetable(T, 'thermalDataTrans_ind.txt');
 
     fid = fopen('thermalDataTrans_ind.txt');
@@ -69,7 +101,7 @@ for i=1:length(files)
     msg = sprintf('Percent Completion: %0.1f\n',percentDone);
     fprintf([updateStr msg])
     updateStr = repmat(sprintf('\b'),1,length(msg)); %Deletes previous msg so that only current msg is visible
-    toc
+    
 end
 
 thermalData = [dataStore{1}; dataStore{2}; dataStore{3}; dataStore{4}; dataStore{5};

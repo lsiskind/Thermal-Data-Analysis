@@ -3,7 +3,7 @@ function [name, version, location, attitude, YPR, beta, life, tempExtreme, Case]
 % create name vectors the same length as M
 
 name = namecell{1}; %again can iterate this later on
-version = 'v8';
+version = 'v5-1';
 location = 'ELC';
 attitude = name(1:3);
 YPR1 = extractBetween(name,6,'_');

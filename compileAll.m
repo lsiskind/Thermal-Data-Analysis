@@ -2,12 +2,19 @@
 clear
 clc
 close all
+
+
+%% write the text files
 tic
 
-% write the text files
 writeDataELC;
 writeDataSF;
 writeDataTrans;
+
+toc
+
+%% write the main file
+tic
 
 % REad file1 
 fid = fopen('thermalDataELC.txt','rt') ;  
@@ -28,8 +35,20 @@ fclose(fid) ;
 % Append both the files 
 alldata = [S1 ; S2 ; S3] ;
 fid = fopen('thermalDataALL.txt','wt') ;
-fprintf(fid,'Original FileName, Version, Location, Attitude, YPR, Beta, Life, Temperature Extreme, Case, Timestamp, NodeID, NodeValue\n');
+fprintf(fid,'Original FileName, Version, Location, Attitude, YPR, Beta, Life, Temperature Extreme, Case, Timestamp, NodeID, NodeName, NodeValue\n');
 fprintf(fid,'%s\n',alldata{:});
 fclose(fid);
+
+toc
+
+%% convert to CSV
+
+tic 
+
+fid = fopen('thermalDataAll.csv','wt') ;
+fprintf(fid,'Original FileName, Version, Location, Attitude, YPR, Beta, Life, Temperature Extreme, Case, Timestamp, NodeID, NodeName, NodeValue\n');
+fprintf(fid,'%s\n',alldata{:});
+fclose(fid);
+
 
 toc
