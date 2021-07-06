@@ -27,7 +27,7 @@ Timestamp = M.Times; % double, units of seconds
 nodeID = string(M.NodeID); %string
 nodeValue = M.NodeValue; % double
 
-[nodeName] = crossref(nodeID);
+[nodeName, opMin, opMax, nonOpMin, nonOpMax] = crossref(nodeID);
 
 % shorten all vectors to only the first four nodes of each component
 isempty = "";
@@ -36,9 +36,15 @@ nodeName(index) = [];
 Timestamp(index) = [];
 nodeID(index) = [];
 nodeValue(index) = [];
+opMin(index) = [];
+opMax(index) = [];
+nonOpMin(index) = [];
+nonOpMax(index) = [];
 
 % shorten to just four nodes per component
-uniquecomps = unique(nodeName, 'stable');
+nodeName = cellstr(nodeName);
+uniquecomps = unique(nodeName);
+uniquecomps = string(uniquecomps);
 
 for j = 1:length(uniquecomps)
 
@@ -54,6 +60,10 @@ for j = 1:length(uniquecomps)
         Timestamp(deleteIndices) = [];
         nodeID(deleteIndices) = [];
         nodeValue(deleteIndices) = [];
+        opMin(deleteIndices) = [];
+        opMax(deleteIndices) = [];
+        nonOpMin(deleteIndices) = [];
+        nonOpMax(deleteIndices) = [];
     end    
 end
 
@@ -84,10 +94,10 @@ Life = fileInfo(:,7);
 Temperature_Extreme = fileInfo(:,8);
 Case = fileInfo(:,9);
 
-T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue);
-writetable(T, 'thermalDataELC_ind_new.txt');
+T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue, opMin, opMax, nonOpMin, nonOpMax);
+writetable(T, 'thermalDataELC_ind_v2.txt');
 
-fid = fopen('thermalDataELC_ind_new.txt');
+fid = fopen('thermalDataELC_ind_v2.txt');
 S1 = textscan(fid,'%s','delimiter','\n');
 S1 = S1{1};
 S1(1) = []; % remove headers
@@ -106,8 +116,13 @@ thermalData = [dataStore{1}; dataStore{2}; dataStore{3}; dataStore{4}; dataStore
                 dataStore{15}];
 
 % Write to file 
-fid = fopen('thermalDataELC.txt','wt') ;
+fid = fopen('thermalDataELC_v2.txt','wt') ;
 fprintf(fid,'%s\n',thermalData{:});
 fclose(fid);
+
+% fid = fopen('thermalDataELC.csv','wt') ;
+% fprintf(fid,'Original FileName, Version, Location, Attitude, YPR, Beta, Life, Temperature Extreme, Case, Timestamp, NodeID, NodeName, NodeValue, opMin, opMax, nonOpMin, nonOpMax\n');
+% fprintf(fid,'%s\n',thermalData{:});
+% fclose(fid);
 
 toc

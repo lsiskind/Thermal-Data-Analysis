@@ -3,6 +3,7 @@ function writeDataSF
 clear
 clc
 close all
+tic
 
 % -------- read in files from V8 Solo Flight--------
 filedir = '/Users/lsiskind/Documents/projects/Thermal Data/v8 Solo Flight/'; % Lena's Mac Setup
@@ -30,7 +31,7 @@ for i=1:length(files)
     % convert time units
     Timestamp = Timestamp.*60.*60; % seconds
     
-    [nodeName] = crossref(nodeID);
+    [nodeName, opMin, opMax, nonOpMin, nonOpMax] = crossref(nodeID);
 
     % shorten all vectors to only the first four nodes of each component
     isempty = "";
@@ -39,6 +40,10 @@ for i=1:length(files)
     Timestamp(index) = [];
     nodeID(index) = [];
     nodeValue(index) = [];
+    opMin(index) = [];
+    opMax(index) = [];
+    nonOpMin(index) = [];
+    nonOpMax(index) = [];
 
     % shorten to just four nodes per component
     uniquecomps = unique(nodeName, 'stable');
@@ -57,6 +62,10 @@ for i=1:length(files)
             Timestamp(deleteIndices) = [];
             nodeID(deleteIndices) = [];
             nodeValue(deleteIndices) = [];
+            opMin(deleteIndices) = [];
+            opMax(deleteIndices) = [];
+            nonOpMin(deleteIndices) = [];
+            nonOpMax(deleteIndices) = [];
         end    
     end
 
@@ -86,10 +95,10 @@ for i=1:length(files)
     Temperature_Extreme = fileInfo(:,8);
     Case = fileInfo(:,9);
 
-    T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue);
-    writetable(T, 'thermalDataSF_ind.txt');
+    T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue, opMin, opMax, nonOpMin, nonOpMax);
+    writetable(T, 'thermalDataSF_ind_v2.txt');
 
-    fid = fopen('thermalDataSF_ind.txt');
+    fid = fopen('thermalDataSF_ind_v2.txt');
     S1 = textscan(fid,'%s','delimiter','\n');
     S1 = S1{1};
     S1(1) = []; % remove headers
@@ -105,9 +114,15 @@ end
 thermalData = [dataStore{1}; dataStore{2}];
 
 % Write to file 
-fid = fopen('thermalDataSF.txt','wt') ;
+fid = fopen('thermalDataSF_v2.txt','wt') ;
 fprintf(fid,'%s\n',thermalData{:});
 fclose(fid);
+
+% fid = fopen('thermalDataSF.csv','wt') ;
+% fprintf(fid,'Original FileName, Version, Location, Attitude, YPR, Beta, Life, Temperature Extreme, Case, Timestamp, NodeID, NodeName, NodeValue');%, opMin, opMax, nonOpMin, nonOpMax\n');
+% fprintf(fid,'%s\n',thermalData{:});
+% fclose(fid);
+toc
 
 
 

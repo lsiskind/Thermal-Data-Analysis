@@ -3,6 +3,7 @@ function writeDataTrans
 clear
 clc
 close all
+tic
 
 % -------- read in files from V8 Solo Flight--------
 filedir = '/Users/lsiskind/Documents/projects/Thermal Data/v8 Transfer/'; % Lena's Mac Setup
@@ -31,7 +32,7 @@ for i=1:length(files)
     % convert timestamp units
     Timestamp = Timestamp.*60.*60; % seconds
     
-    [nodeName] = crossref(nodeID);
+    [nodeName, opMin, opMax, nonOpMin, nonOpMax] = crossref(nodeID);
 
     % shorten all vectors to only the first four nodes of each component
     isempty = "";
@@ -40,6 +41,10 @@ for i=1:length(files)
     Timestamp(index) = [];
     nodeID(index) = [];
     nodeValue(index) = [];
+    opMin(index) = [];
+    opMax(index) = [];
+    nonOpMin(index) = [];
+    nonOpMax(index) = [];
 
     % shorten to just four nodes per component
     uniquecomps = unique(nodeName, 'stable');
@@ -58,6 +63,10 @@ for i=1:length(files)
             Timestamp(deleteIndices) = [];
             nodeID(deleteIndices) = [];
             nodeValue(deleteIndices) = [];
+            opMin(deleteIndices) = [];
+            opMax(deleteIndices) = [];
+            nonOpMin(deleteIndices) = [];
+            nonOpMax(deleteIndices) = [];
         end    
     end
 
@@ -87,10 +96,10 @@ for i=1:length(files)
     Temperature_Extreme = fileInfo(:,8);
     Case = fileInfo(:,9);
 
-    T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue);
-    writetable(T, 'thermalDataTrans_ind.txt');
+    T = table(Name, Version, Location, Attitude, YPR, Beta, Life, Temperature_Extreme, Case, Timestamp, nodeID, nodeName, nodeValue, opMin, opMax, nonOpMin, nonOpMax);
+    writetable(T, 'thermalDataTrans_ind_v2.txt');
 
-    fid = fopen('thermalDataTrans_ind.txt');
+    fid = fopen('thermalDataTrans_ind_v2.txt');
     S1 = textscan(fid,'%s','delimiter','\n');
     S1 = S1{1};
     S1(1) = []; % remove headers
@@ -108,6 +117,12 @@ thermalData = [dataStore{1}; dataStore{2}; dataStore{3}; dataStore{4}; dataStore
                 dataStore{6}; dataStore{7}; dataStore{8}];
 
 % Write to file 
-fid = fopen('thermalDataTrans.txt','wt') ;
+fid = fopen('thermalDataTrans_v2.txt','wt') ;
 fprintf(fid,'%s\n',thermalData{:});
 fclose(fid);
+
+% fid = fopen('thermalDataTrans.csv','wt') ;
+% fprintf(fid,'Original FileName, Version, Location, Attitude, YPR, Beta, Life, Temperature Extreme, Case, Timestamp, NodeID, NodeName, NodeValue');%, opMin, opMax, nonOpMin, nonOpMax\n');
+% fprintf(fid,'%s\n',thermalData{:});
+% fclose(fid);
+toc
